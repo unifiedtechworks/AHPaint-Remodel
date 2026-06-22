@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1000" role="img" aria-label="Abstract black and silver remodeling background">
+  <defs>
+    <linearGradient id="matte" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#030304" />
+      <stop offset="0.55" stop-color="#101114" />
+      <stop offset="1" stop-color="#23262a" />
+    </linearGradient>
+    <linearGradient id="silverSweep" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0" />
+      <stop offset="0.52" stop-color="#dce0e3" stop-opacity="0.17" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0" />
+    </linearGradient>
+    <pattern id="brushed" width="22" height="22" patternUnits="userSpaceOnUse" patternTransform="rotate(-18)">
+      <path d="M0 6 H22 M0 15 H22" stroke="#f2f4f5" stroke-opacity="0.028" stroke-width="1" />
+    </pattern>
+    <filter id="softBlur">
+      <feGaussianBlur stdDeviation="24" />
+    </filter>
+  </defs>
+
+  <rect width="1800" height="1000" fill="url(#matte)" />
+  <rect width="1800" height="1000" fill="url(#brushed)" />
+
+  <path d="M-240 920 L1420 -120 L1800 -120 L190 1000 Z" fill="url(#silverSweep)" opacity="0.55" />
+  <ellipse cx="1370" cy="315" rx="560" ry="260" fill="#dfe3e6" opacity="0.1" filter="url(#softBlur)" />
+  <ellipse cx="1270" cy="780" rx="620" ry="230" fill="#aeb4ba" opacity="0.045" filter="url(#softBlur)" />
+
+  <g transform="translate(840 35) scale(4.55)" fill="none" stroke="#cfd4d8" stroke-linecap="round" stroke-linejoin="round" opacity="0.135">
+    <path d="M35 110 V58 L100 12 L165 58 V110" stroke-width="7" />
+    <path d="M60 110 V78 H140 V110" stroke-width="7" />
+    <path d="M22 62 L100 5 L178 62" stroke-width="8" />
+    <path d="M186 34 L138 82" stroke-width="7" />
+    <path d="M151 47 L173 69" stroke-width="7" />
+    <path d="M26 154 L86 94" stroke-width="8" />
+    <path d="M18 146 L34 162" stroke-width="8" />
+    <path d="M72 94 L92 114" stroke-width="8" />
+  </g>
+
+  <rect width="930" height="1000" fill="#030304" opacity="0.74" />
+  <rect width="1800" height="1000" fill="#000000" opacity="0.14" />
+</svg>
