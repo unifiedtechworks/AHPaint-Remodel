@@ -1,5 +1,6 @@
 import './App.css'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import MobileContactBar from './components/MobileContactBar'
 import { businessInfo, type Service } from './data/business'
 import { featuredProjects, type Project } from './data/projects'
 
@@ -14,6 +15,15 @@ const reasons = [
   'Local service in and around Hermiston',
   businessInfo.experienceLabel,
   'Painting and remodeling handled by one reliable contractor',
+]
+
+const serviceAreaList = [...businessInfo.serviceAreas, businessInfo.serviceAreaRegion].join(', ')
+
+const trustItems = [
+  `${businessInfo.trust.yearsExperience}+ Years Experience`,
+  ...(businessInfo.trust.insured ? ['Insured'] : []),
+  businessInfo.trust.customerTypes.join(' & '),
+  'Serving Eastern Oregon',
 ]
 
 function SectionHeader({ eyebrow, title, children }: SectionHeaderProps) {
@@ -35,28 +45,52 @@ function ServiceCardComponent({ title, description }: Service) {
   )
 }
 
+function TrustStrip() {
+  return (
+    <section className="trust-strip section-wrap" aria-label="Verified business information">
+      <ul>
+        {trustItems.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </section>
+  )
+}
+
 interface ProjectCardProps {
   project: Project
   onSelect: (project: Project) => void
 }
 
 function getProjectImages(project: Project) {
-  return project.galleryImages
+  return project.images
 }
 
 function ProjectCard({ project, onSelect }: ProjectCardProps) {
-  const { title, category, description, coverImage } = project
+  const { title, category, location, description, images } = project
+  const coverImage = images[0]
 
   return (
     <button className="project-card" type="button" onClick={() => onSelect(project)}>
       {coverImage ? (
-        <img className="project-card__image" src={coverImage} alt={`${title} project`} loading="lazy" />
+        <img
+          className="project-card__image"
+          src={coverImage.thumbnailSrc}
+          srcSet={coverImage.srcSet}
+          sizes={coverImage.sizes}
+          width={coverImage.width}
+          height={coverImage.height}
+          alt={coverImage.alt}
+          loading="lazy"
+          decoding="async"
+        />
       ) : (
         <div className="project-card__placeholder">Project photos coming soon.</div>
       )}
       <div className="project-card__content">
         <p className="project-card__category">{category}</p>
         <h3>{title}</h3>
+        <p className="project-card__location">{location}</p>
         <p>{description}</p>
       </div>
     </button>
@@ -128,7 +162,15 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
         </button>
         <div className="lightbox__media">
           {activeImage ? (
-            <img src={activeImage} alt={`${project.title} project view ${activeIndex + 1}`} />
+            <img
+              src={activeImage.largeSrc}
+              srcSet={activeImage.srcSet}
+              sizes="(max-width: 1120px) 92vw, 1120px"
+              width={activeImage.width}
+              height={activeImage.height}
+              alt={activeImage.alt}
+              decoding="async"
+            />
           ) : (
             <div className="lightbox__placeholder">Project photos coming soon.</div>
           )}
@@ -143,6 +185,7 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
         <div className="lightbox__content">
           <p className="project-card__category">{project.category}</p>
           <h2 id="lightbox-title">{project.title}</h2>
+          <p className="project-card__location">{project.location}</p>
           <p>{project.description}</p>
           {hasMultipleImages && (
             <div className="lightbox__thumbs" aria-label="Project image thumbnails">
@@ -150,11 +193,11 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
                 <button
                   className={index === activeIndex ? 'lightbox__thumb lightbox__thumb--active' : 'lightbox__thumb'}
                   type="button"
-                  key={image}
+                  key={image.src}
                   onClick={() => setActiveIndex(index)}
                   aria-label={`Show image ${index + 1} of ${images.length}`}
                 >
-                  <img src={image} alt="" />
+                  <img src={image.thumbnailSrc} width={image.width} height={image.height} alt="" loading="lazy" decoding="async" />
                 </button>
               ))}
             </div>
@@ -172,6 +215,7 @@ function App() {
   const emailHref = `mailto:${businessInfo.email}`
 
   return (
+    <>
     <main>
       <section className="hero section-wrap">
         <div className="hero__content">
@@ -181,9 +225,9 @@ function App() {
             Quality painting and remodeling services for homes and small businesses throughout the greater Hermiston area. {businessInfo.businessName} delivers dependable craftsmanship, clear communication, and lasting results.
           </p>
           <div className="hero__actions" aria-label="Contact options">
-            <a className="button button--primary" href={phoneHref}>Call</a>
-            <a className="button button--secondary" href={textHref}>Text</a>
-            <a className="button button--secondary" href={emailHref}>Email</a>
+            <a className="button button--primary" href={phoneHref}>Call Aaron</a>
+            <a className="button button--secondary" href={textHref}>Text Aaron</a>
+            <a className="button button--secondary" href={emailHref}>Email Aaron</a>
           </div>
           <p className="hero__contact-note">{businessInfo.phone} · {businessInfo.email}</p>
         </div>
@@ -193,20 +237,22 @@ function App() {
           </div>
         )}
         <aside className="hero-card" aria-label="Business highlights">
-          <span className="hero-card__number">20+</span>
+          <span className="hero-card__number">{businessInfo.trust.yearsExperience}+</span>
           <p className="hero-card__label">Years Experience</p>
           <ul>
-            <li>Residential projects</li>
-            <li>Small commercial work</li>
+            <li>{businessInfo.trust.customerTypes[0]} projects</li>
+            <li>{businessInfo.trust.customerTypes[1]} work</li>
             <li>{businessInfo.serviceArea}</li>
           </ul>
         </aside>
       </section>
 
+      <TrustStrip />
+
       <section className="section section-wrap" id="about">
         <SectionHeader eyebrow="About" title="Local paint and remodel help for practical property improvements.">
           <p>
-            {businessInfo.businessName} proudly serves homeowners and small businesses throughout the greater Hermiston area. Whether you need interior or exterior painting, updated flooring, replacement windows and doors, or a bathroom remodel, every project is approached with care, clear communication, and quality workmanship.
+            With more than {businessInfo.trust.yearsExperience} years of experience, {businessInfo.businessName} provides insured residential and small commercial painting and remodeling services throughout the Hermiston area and surrounding Eastern Oregon communities.
           </p>
         </SectionHeader>
       </section>
@@ -256,26 +302,31 @@ function App() {
       <section className="section section-wrap service-area" id="service-area">
         <SectionHeader eyebrow="Service Area" title={`Serving the ${businessInfo.serviceArea}.`}>
           <p>
-            Serving Hermiston and surrounding communities with residential and small commercial painting and remodeling services. Reach out to discuss your project and see how {businessInfo.businessName} can help bring your ideas to life.
+            Serving {serviceAreaList} with residential and small commercial painting, remodeling, flooring, bathroom, window, door, and exterior improvement services.
+          </p>
+          <p>
+            Call, text, or email Aaron to discuss your project and confirm availability for your location.
           </p>
         </SectionHeader>
       </section>
 
       <section className="section section-wrap contact-section" id="contact">
-        <SectionHeader eyebrow="Contact" title="Ready to talk about your project?">
+        <SectionHeader eyebrow="Contact" title="Ready to discuss your project?">
           <p>
-            Have a project in mind? Call, text, or email {businessInfo.businessName} to discuss your painting or remodeling needs. Whether it's a small update or a larger renovation, we're happy to talk through your plans.
+            Call, text, or email Aaron to talk through your painting or remodeling needs. Whether you're planning a small update or a larger project, Aaron Hansen Paint & Remodel LLC is available to discuss the details and next steps.
           </p>
         </SectionHeader>
         <div className="contact-card">
-          <a className="contact-card__action" href={phoneHref}>Call: {businessInfo.phone}</a>
-          <a className="contact-card__action" href={textHref}>Text: {businessInfo.phone}</a>
-          <a className="contact-card__action" href={emailHref}>Email: {businessInfo.email}</a>
+          <a className="contact-card__action" href={phoneHref}>Call Aaron</a>
+          <a className="contact-card__action" href={textHref}>Text Aaron</a>
+          <a className="contact-card__action" href={emailHref}>Email Aaron</a>
           <p>{businessInfo.serviceArea}</p>
         </div>
       </section>
       {selectedProject && <ProjectLightbox project={selectedProject} onClose={() => setSelectedProject(null)} />}
     </main>
+    <MobileContactBar />
+    </>
   )
 }
 

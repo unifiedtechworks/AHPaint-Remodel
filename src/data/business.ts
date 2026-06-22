@@ -8,13 +8,22 @@ export interface HeroImage {
   alt: string
 }
 
+export interface TrustInfo {
+  yearsExperience: number
+  insured: boolean
+  customerTypes: string[]
+}
+
 export interface BusinessInfo {
   businessName: string
   phone: string
   email: string
   serviceArea: string
+  serviceAreas: string[]
+  serviceAreaRegion: string
   yearsInBusiness: number
   experienceLabel: string
+  trust: TrustInfo
   services: Service[]
   heroImage?: HeroImage
 }
@@ -28,9 +37,16 @@ export const businessInfo: BusinessInfo = {
   // Client email address shown on the site. Update here if it changes.
   email: 'ahpaintremodel@gmail.com',
 
-  serviceArea: 'Greater Hermiston, Oregon area',
+  serviceArea: 'Hermiston area and surrounding Eastern Oregon communities',
+  serviceAreas: ['Hermiston', 'Umatilla', 'Stanfield', 'Echo', 'Boardman'],
+  serviceAreaRegion: 'surrounding Eastern Oregon communities',
   yearsInBusiness: 20,
   experienceLabel: 'More than 20 Years of Experience',
+  trust: {
+    yearsExperience: 20,
+    insured: true,
+    customerTypes: ['Residential', 'Small Commercial'],
+  },
 
   // Optional: add a hero image later, for example:
   // heroImage: { src: '/images/project-photo.jpg', alt: 'Completed remodel project' },
