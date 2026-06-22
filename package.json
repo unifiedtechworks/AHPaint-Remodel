@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "generate:social-preview": "node scripts/generate-social-preview.mjs",
     "optimize:gallery": "node scripts/optimize-gallery-images.mjs",
+    "optimize:hero": "node scripts/optimize-hero-image.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

@@ -1,6 +1,8 @@
 import './App.css'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import MobileContactBar from './components/MobileContactBar'
+import SiteFooter from './components/SiteFooter'
+import SiteHeader from './components/SiteHeader'
 import { businessInfo, type Service } from './data/business'
 import { featuredProjects, type Project } from './data/projects'
 
@@ -25,6 +27,24 @@ const trustItems = [
   businessInfo.trust.customerTypes.join(' & '),
   'Serving Eastern Oregon',
 ]
+
+const focusableElementSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
+
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(container.querySelectorAll<HTMLElement>(focusableElementSelector)).filter((element) => {
+    const isHidden = element.hidden || element.getAttribute('aria-hidden') === 'true'
+    const isVisible = element.offsetParent !== null || element.getClientRects().length > 0
+
+    return !isHidden && isVisible
+  })
+}
 
 function SectionHeader({ eyebrow, title, children }: SectionHeaderProps) {
   return (
@@ -59,7 +79,7 @@ function TrustStrip() {
 
 interface ProjectCardProps {
   project: Project
-  onSelect: (project: Project) => void
+  onSelect: (project: Project, event: MouseEvent<HTMLButtonElement>) => void
 }
 
 function getProjectImages(project: Project) {
@@ -71,7 +91,7 @@ function ProjectCard({ project, onSelect }: ProjectCardProps) {
   const coverImage = images[0]
 
   return (
-    <button className="project-card" type="button" onClick={() => onSelect(project)}>
+    <button className="project-card" type="button" onClick={(event) => onSelect(project, event)}>
       {coverImage ? (
         <img
           className="project-card__image"
@@ -105,6 +125,8 @@ interface ProjectLightboxProps {
 function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
   const images = useMemo(() => getProjectImages(project), [project])
   const [activeIndex, setActiveIndex] = useState(0)
+  const panelRef = useRef<HTMLDivElement | null>(null)
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null)
   const activeImage = images[activeIndex]
   const hasMultipleImages = images.length > 1
 
@@ -121,9 +143,54 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
   }, [])
 
   useEffect(() => {
+    requestAnimationFrame(() => {
+      closeButtonRef.current?.focus()
+    })
+  }, [project])
+
+  useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         onClose()
+        return
+      }
+
+      if (event.key === 'Tab') {
+        const panel = panelRef.current
+
+        if (!panel) {
+          return
+        }
+
+        const focusableElements = getFocusableElements(panel)
+
+        if (focusableElements.length === 0) {
+          event.preventDefault()
+          panel.focus()
+          return
+        }
+
+        const firstElement = focusableElements[0]
+        const lastElement = focusableElements[focusableElements.length - 1]
+
+        if (focusableElements.length === 1) {
+          event.preventDefault()
+          firstElement.focus()
+          return
+        }
+
+        if (event.shiftKey && document.activeElement === firstElement) {
+          event.preventDefault()
+          lastElement.focus()
+          return
+        }
+
+        if (!event.shiftKey && document.activeElement === lastElement) {
+          event.preventDefault()
+          firstElement.focus()
+        }
+
+        return
       }
 
       if (!hasMultipleImages) {
@@ -131,18 +198,33 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
       }
 
       if (event.key === 'ArrowLeft') {
+        event.preventDefault()
         setActiveIndex((currentIndex) => (currentIndex === 0 ? images.length - 1 : currentIndex - 1))
       }
 
       if (event.key === 'ArrowRight') {
+        event.preventDefault()
         setActiveIndex((currentIndex) => (currentIndex === images.length - 1 ? 0 : currentIndex + 1))
       }
     }
 
+    function handleFocusIn(event: FocusEvent) {
+      const panel = panelRef.current
+
+      if (!panel || !(event.target instanceof Node) || panel.contains(event.target)) {
+        return
+      }
+
+      const firstFocusableElement = getFocusableElements(panel)[0]
+      ;(firstFocusableElement ?? panel).focus()
+    }
+
     window.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('focusin', handleFocusIn)
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('focusin', handleFocusIn)
     }
   }, [hasMultipleImages, images.length, onClose])
 
@@ -155,9 +237,9 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
   }
 
   return (
-    <div className="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title" onClick={onClose}>
-      <div className="lightbox__panel" onClick={(event) => event.stopPropagation()}>
-        <button className="lightbox__close" type="button" onClick={onClose} aria-label="Close project gallery">
+    <div className="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightbox-title" aria-describedby="lightbox-description" onClick={onClose}>
+      <div className="lightbox__panel" ref={panelRef} tabIndex={-1} onClick={(event) => event.stopPropagation()}>
+        <button className="lightbox__close" ref={closeButtonRef} type="button" onClick={onClose} aria-label="Close project gallery">
           ×
         </button>
         <div className="lightbox__media">
@@ -186,7 +268,7 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
           <p className="project-card__category">{project.category}</p>
           <h2 id="lightbox-title">{project.title}</h2>
           <p className="project-card__location">{project.location}</p>
-          <p>{project.description}</p>
+          <p id="lightbox-description">{project.description}</p>
           {hasMultipleImages && (
             <div className="lightbox__thumbs" aria-label="Project image thumbnails">
               {images.map((image, index) => (
@@ -196,6 +278,7 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
                   key={image.src}
                   onClick={() => setActiveIndex(index)}
                   aria-label={`Show image ${index + 1} of ${images.length}`}
+                  aria-current={index === activeIndex ? 'true' : undefined}
                 >
                   <img src={image.thumbnailSrc} width={image.width} height={image.height} alt="" loading="lazy" decoding="async" />
                 </button>
@@ -210,13 +293,33 @@ function ProjectLightbox({ project, onClose }: ProjectLightboxProps) {
 
 function App() {
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
+  const lightboxOpenerRef = useRef<HTMLElement | null>(null)
   const phoneHref = `tel:${businessInfo.phone.replace(/\D/g, '')}`
   const textHref = `sms:${businessInfo.phone.replace(/\D/g, '')}`
   const emailHref = `mailto:${businessInfo.email}`
 
+  function openProject(project: Project, event: MouseEvent<HTMLButtonElement>) {
+    lightboxOpenerRef.current = event.currentTarget
+    setSelectedProject(project)
+  }
+
+  function closeProjectLightbox() {
+    setSelectedProject(null)
+
+    requestAnimationFrame(() => {
+      const opener = lightboxOpenerRef.current
+
+      if (opener?.isConnected) {
+        opener.focus()
+      }
+    })
+  }
+
   return (
     <>
-    <main>
+    <a className="skip-link" href="#main-content">Skip to main content</a>
+    <SiteHeader />
+    <main id="main-content">
       <section className="hero section-wrap">
         <div className="hero__content">
           <p className="eyebrow">Hermiston Area General Contractor</p>
@@ -275,7 +378,7 @@ function App() {
         {featuredProjects.length > 0 ? (
           <div className="projects-grid">
             {featuredProjects.map((project) => (
-              <ProjectCard key={project.id} project={project} onSelect={setSelectedProject} />
+              <ProjectCard key={project.id} project={project} onSelect={openProject} />
             ))}
           </div>
         ) : (
@@ -323,8 +426,9 @@ function App() {
           <p>{businessInfo.serviceArea}</p>
         </div>
       </section>
-      {selectedProject && <ProjectLightbox project={selectedProject} onClose={() => setSelectedProject(null)} />}
+      {selectedProject && <ProjectLightbox project={selectedProject} onClose={closeProjectLightbox} />}
     </main>
+    <SiteFooter />
     <MobileContactBar />
     </>
   )
