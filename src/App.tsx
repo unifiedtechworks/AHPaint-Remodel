@@ -23,7 +23,7 @@ const serviceAreaList = [...businessInfo.serviceAreas, businessInfo.serviceAreaR
 
 const trustItems = [
   `${businessInfo.trust.yearsExperience}+ Years Experience`,
-  ...(businessInfo.trust.insured ? ['Insured'] : []),
+  ...(businessInfo.trust.insured ? ['Licensed, Bonded & Insured'] : []),
   businessInfo.trust.customerTypes.join(' & '),
   'Serving Eastern Oregon',
 ]
@@ -322,7 +322,7 @@ function App() {
     <main id="main-content">
       <section className="hero section-wrap">
         <div className="hero__content">
-          <p className="eyebrow">Hermiston Area General Contractor</p>
+          <p className="eyebrow">General Contractor in Hermiston, Oregon</p>
           <h1>{businessInfo.businessName}</h1>
           <p className="hero__lead">
             Quality painting and remodeling services for homes and small businesses throughout the greater Hermiston area. {businessInfo.businessName} delivers dependable craftsmanship, clear communication, and lasting results.
@@ -355,7 +355,7 @@ function App() {
       <section className="section section-wrap" id="about">
         <SectionHeader eyebrow="About" title="Local paint and remodel help for practical property improvements.">
           <p>
-            With more than {businessInfo.trust.yearsExperience} years of experience, {businessInfo.businessName} provides insured residential and small commercial painting and remodeling services throughout the Hermiston area and surrounding Eastern Oregon communities.
+            With more than {businessInfo.trust.yearsExperience} years of experience, {businessInfo.businessName} provides licensed, bonded, and insured residential and small commercial painting and remodeling services throughout the Hermiston area and surrounding Eastern Oregon communities.
           </p>
         </SectionHeader>
       </section>

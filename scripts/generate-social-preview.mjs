@@ -24,7 +24,7 @@ function escapeXml(value) {
 function textOverlaySvg() {
   const businessNameLineOne = escapeXml('Aaron Hansen')
   const businessNameLineTwo = escapeXml('Paint & Remodel LLC')
-  const serviceLineOne = escapeXml('Painting & Remodeling')
+  const serviceLineOne = escapeXml('General Contractor')
   const serviceLineTwo = escapeXml('in Hermiston, Oregon')
   const supportingLine = escapeXml('Residential & Small Commercial')
 
