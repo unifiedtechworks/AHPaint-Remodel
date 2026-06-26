@@ -12,6 +12,16 @@ function SiteFooter() {
           <p className="site-footer__name">{businessInfo.businessName}</p>
           <p className="site-footer__area">{businessInfo.serviceArea}</p>
           <p className="site-footer__copyright">© {currentYear} {businessInfo.businessName}</p>
+          <p className="site-footer__management">
+            Site managed by{' '}
+            <a
+              href="https://unifiedtechworks.com"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Unified Techworks LLC
+            </a>
+          </p>
         </div>
 
         <nav className="site-footer__links" aria-label="Footer links">

@@ -881,6 +881,30 @@ p {
   color: rgba(185, 189, 193, 0.7);
 }
 
+.site-footer__management {
+  margin: 0.35rem 0 0;
+  color: rgba(185, 189, 193, 0.7);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.site-footer__management a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  transition: color 180ms ease;
+}
+
+.site-footer__management a:hover,
+.site-footer__management a:focus-visible {
+  color: rgba(244, 246, 248, 0.9);
+}
+
+.site-footer__management a:focus-visible {
+  outline: 3px solid rgba(225, 228, 231, 0.72);
+  outline-offset: 3px;
+}
+
 .site-footer__links {
   display: flex;
   flex-wrap: wrap;
